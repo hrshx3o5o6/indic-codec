@@ -23,3 +23,6 @@ logs/
 # System
 .DS_Store
 .claude/worktrees/
+
+#README
+PHONEME_ANALYSIS.md
