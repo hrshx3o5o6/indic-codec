@@ -50,11 +50,11 @@ This project evaluates three state-of-the-art neural audio codecs on multilingua
 
 ### Visualizations
 
-![PESQ & STOI by Codec](results/pesq_stoi_by_codec.png)
+![PESQ & STOI by Codec](results/eval_results_png/pesq_stoi_by_codec.png)
 
-![SI-SDR & MCD by Codec](results/si_sdr_mcd_by_codec.png)
+![SI-SDR & MCD by Codec](results/eval_results_png/si_sdr_mcd_by_codec.png)
 
-![Bitrate & RTF Comparison](results/bitrate_rtf_comparison.png)
+![Bitrate & RTF Comparison](results/eval_results_png/bitrate_rtf_comparison.png)
 
 ---
 
@@ -62,7 +62,7 @@ This project evaluates three state-of-the-art neural audio codecs on multilingua
 
 ### PESQ by Language
 
-![PESQ Scores Across Languages and Codecs](results/pesq_by_language.png)
+![PESQ Scores Across Languages and Codecs](results/eval_results_png/pesq_by_language.png)
 
 **Language Family Observations:**
 
@@ -84,7 +84,7 @@ Underutilized codebooks are especially problematic for Indic languages, which ha
 
 ### Comparative Codebook Health
 
-![Codebook Utilization Across All Three Codecs](results/comparative_codebook_utilization.png)
+![Codebook Utilization Across All Three Codecs](results/eval_results_png/comparative_codebook_utilization.png)
 
 ### Key Findings
 
@@ -132,7 +132,7 @@ Used **Allosaurus IPA phoneme recognizer** on Hindi reference clips to identify 
 
 ### Phoneme Heatmap
 
-![Phoneme MCD Heatmap: Which Phoneme Classes Fail Most](results/phoneme_heatmap.png)
+![Phoneme MCD Heatmap: Which Phoneme Classes Fail Most](results/eval_results_png/phoneme_heatmap.png)
 
 **Caveat:** EnCodec shows paradoxically high segment-level MCD for aspirates despite best global metrics. This suggests a **scale artifact**—segment boundaries don't align perfectly with acoustic landmarks. Nevertheless, the trend is consistent: aspirated consonants degrade under compression.
 
