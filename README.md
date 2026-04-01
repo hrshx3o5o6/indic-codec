@@ -209,15 +209,7 @@ jupyter lab codec_evaluation.ipynb
 
 ---
 
-## 10. Task 2: HiFi-Codec Fine-tuning on Indic Speech
-
-### Why HiFi-Codec
-
-Despite ranking second in Task 1 perceptual metrics, HiFi-Codec was selected for fine-tuning over EnCodec and SNAC for a specific architectural reason: its decoupled RVQ quantization stage makes it uniquely amenable to targeted codebook adaptation without disturbing the encoder-decoder pipeline. The Task 1 analysis showed HiFi-Codec's codebook collapse at levels 1–2 (14–21% utilization) is its primary failure mode on Indic speech — a problem directly addressable through fine-tuning, unlike EnCodec's architecture which is already well-utilised.
-
----
-
-### Fine-tuning Strategy — Frozen Encoder & Decoder
+### 10. Fine-tuning Strategy — Frozen Encoder & Decoder
 
 Rather than fine-tuning the entire model, a **targeted RVQ adaptation** approach was adopted. The encoder and decoder weights are completely frozen; only the quantizer codebooks are updated during training.
 
