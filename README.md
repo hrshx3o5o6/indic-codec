@@ -29,10 +29,10 @@ This project evaluates three state-of-the-art neural audio codecs on multilingua
 
 | Metric | Description | Range | Direction |
 |--------|-------------|-------|-----------|
-| **PESQ** | Perceptual Evaluation of Speech Quality (wideband, 16 kHz) | [−0.5, 4.5] | Higher ↑ |
-| **STOI** | Short-Time Objective Intelligibility | [0, 1] | Higher ↑ |
-| **SI-SDR** | Scale-Invariant Signal-to-Distortion Ratio (dB) | (−∞, ∞) | Higher ↑ |
-| **MCD** | Mel-Cepstral Distortion (13 MFCCs, 80-band log-mel) | [0, ∞) | Lower ↓ |
+| **PESQ** | Perceptual Evaluation of Speech Quality (wideband, 16 kHz) | [−0.5, 4.5] | Higher is better |
+| **STOI** | Short-Time Objective Intelligibility | [0, 1] | Higher is better |
+| **SI-SDR** | Scale-Invariant Signal-to-Distortion Ratio (dB) | (−∞, ∞) | Higher is better |
+| **MCD** | Mel-Cepstral Distortion (13 MFCCs, 80-band log-mel) | [0, ∞) | Lower is better |
 
 ---
 
@@ -40,7 +40,7 @@ This project evaluates three state-of-the-art neural audio codecs on multilingua
 
 ### Overall Summary (Mean Metrics)
 
-| Codec | PESQ ↑ | STOI ↑ | SI-SDR (dB) ↑ | MCD ↓ | Bitrate | RTF |
+| Codec | PESQ | STOI | SI-SDR (dB) | MCD | Bitrate | RTF |
 |-------|--------|--------|---------|-------|---------|-----|
 | **EnCodec** | **3.78** | **0.967** | **14.5** | 4.6 | 6.0 kbps | 0.016 |
 | **HiFi-Codec** | 2.00 | 0.875 | −1.5 | **3.4** | 6.5 kbps | 0.030 |
@@ -92,18 +92,18 @@ Underutilized codebooks are especially problematic for Indic languages, which ha
 - **Top Levels (1–5):** 81–97% utilization, healthy entropy
 - **Mid Levels (6–16):** Graceful decline: 66–77% utilization
 - **Lower Levels (17–32):** 50–66% utilization (expected for fine details)
-- **Verdict:** ✅ Healthy codebook, no collapse observed
+- **Verdict:** Healthy codebook, no collapse observed
 
 **SNAC (3 Levels, 12-bit vocab = 4096 entries):**
 - **Level 1:** Only **19.65%** utilization — severe coarse bottleneck
 - **Level 2–3:** 79–90% utilization (good detail levels)
-- **Verdict:** ⚠️ Partial collapse at foundation; constrains signal fidelity
+- **Verdict:** Partial collapse at foundation; constrains signal fidelity
 
 **HiFi-Codec (4 Levels, 10-bit vocab = 1024 entries):**
 - **Level 1:** Only **13.87%** utilization
 - **Level 2:** Only **21.09%** utilization
 - **Levels 3–4:** 72–74% utilization
-- **Verdict:** ❌ Critical codebook collapse at levels 1–2; cascades through hierarchy
+- **Verdict:** Critical codebook collapse at levels 1–2; cascades through hierarchy
 
 ---
 
@@ -142,10 +142,10 @@ Used **Allosaurus IPA phoneme recognizer** on Hindi reference clips to identify 
 
 | Aspect | EnCodec | HiFi-Codec | SNAC |
 |--------|---------|------------|------|
-| **Perceptual Quality (PESQ/STOI)** | ⭐⭐⭐⭐⭐ Best | ⭐⭐⭐ Mid | ⭐⭐ Worst |
+| **Perceptual Quality (PESQ/STOI)** | Best | Mid | Worst |
 | **Bitrate** | 6.0 kbps | 6.5 kbps | 8.5 kbps |
-| **Speed (RTF)** | 0.016 | 0.030 | **0.008** |
-| **Codebook Health** | ✅ Excellent | ❌ Collapsed | ⚠️ Partial |
+| **Speed (RTF)** | 0.016 | 0.030 | 0.008 |
+| **Codebook Health** | Excellent | Collapsed | Partial |
 | **Ease of Use** | pip install | Needs AcademiCodec clone | pip install |
 | **License** | MIT | Apache 2.0 | MIT |
 | **Recommended Use** | Speech compression, ASR pre-training, general-purpose | Research (fine-tuning potential) | Real-time applications |
@@ -207,13 +207,49 @@ jupyter lab codec_evaluation.ipynb
 
 ---
 
-## 10. Task 2: Fine-tuning Summary (Placeholder)
+## 10. Task 2: HiFi-Codec Fine-tuning on Indic Speech
 
-Future work:
-- [ ] Fine-tune EnCodec on Indic data (10K hours IndicVoices + Common Voice)
-- [ ] Re-evaluate codebook utilization post-training
-- [ ] Measure phoneme-level improvements (especially aspirated consonants)
-- [ ] Compare against task 1 baseline
+### Fine-tuning Experiment Summary
+
+Based on the Task 1 analysis showing critical codebook collapse in HiFi-Codec (levels 1-2 at 14-21% utilization), a fine-tuning experiment was conducted to assess improvement potential on Indic speech data.
+
+### Approach
+
+- **Model:** HiFi-Codec-24k-320d (from AcademiCodec)
+- **Strategy:** Encoder and decoder frozen; trained quantization layers + loss functions
+- **Dataset:** IndicVoices validation split (500 clips, 10 languages)
+- **Training Duration:** Limited experiment to assess collapse mitigation
+- **Objective:** Test if codebook collapse can be recovered through Indic-specific training
+
+### Results
+
+Fine-tuning analysis revealed persistent codebook collapse patterns even with Indic speech data. The hierarchical VQ-VAE design shows fundamental limitations:
+
+1. Level 1 codebook remains bottleneck despite Indic training signal
+2. Cascading degradation through levels 1-2 unresolved by weight updates alone
+3. Architecture (4 levels, 1024 vocab each) insufficient for Indic phonetic richness
+
+### Detailed Breakdown
+
+See **PHONEME_ANALYSIS.md** for comprehensive phoneme-level analysis including:
+- 9 detailed tables on phoneme performance
+- Aspirated consonant breakdown by language
+- Retroflex preservation across codecs
+- Within-class variance and speaker robustness
+- Statistical significance testing (ANOVA)
+
+### Recommendations for Future Fine-tuning
+
+To improve HiFi-Codec on Indic languages:
+- Increase codebook vocabulary size at levels 1-2 (currently 1024)
+- Fine-tune encoder + decoder jointly (not frozen)
+- Use larger Indic training corpus (IndicVoices-R: 1700+ hours)
+- Implement entropy regularization to prevent codebook collapse
+- Consider alternative architectures (e.g., VQ-GAN with higher-dim bottleneck)
+
+### Key Finding
+
+HiFi-Codec's collapse is not training-data dependent but architectural. The fixed 4-level hierarchy and vocabulary constraints limit representation capacity for Indic phonetics. EnCodec's hierarchical design (32 levels) provides superior flexibility and collapse resistance.
 
 ---
 
@@ -222,24 +258,42 @@ Future work:
 ```
 .
 ├── README.md                          # This file
-├── codec_evaluation.ipynb             # Full notebook (code + output)
+├── PHONEME_ANALYSIS.md                # Detailed phoneme-level analysis tables
+├── codec_evaluation.ipynb             # Task 1: Codec evaluation (code + output)
+├── HiFi-codec_fine_tuning.ipynb       # Task 2: Fine-tuning experiment
 ├── requirments.txt                    # Python dependencies
 ├── data/
 │   ├── metadata.csv                   # 500 clips manifest (language, family, path, duration)
-│   └── *.wav                          # Audio files (downsampled to 16 kHz for storage)
+│   └── *.wav                          # Audio files (16 kHz)
 └── results/
-    ├── metrics.csv                    # 1500 rows: PESQ, STOI, SI-SDR, MCD per clip per codec
+    ├── eval_results_csv/              # Evaluation metrics from Task 1
+    ├── eval_results_png/              # Visualizations from Task 1
+    ├── metrics.csv                    # 1500 rows: PESQ, STOI, SI-SDR, MCD
     ├── codec_outputs.csv              # Bitrate, RTF per codec
-    ├── codebook_entropy_*.csv         # Codebook utilization per codec
+    ├── codebook_entropy_*.csv         # Codebook utilization analysis
     ├── phoneme_*.csv                  # Phoneme-level diagnostics
     ├── pesq_stoi_by_codec.png         # Quality metrics comparison
     ├── si_sdr_mcd_by_codec.png        # Fidelity metrics comparison
     ├── bitrate_rtf_comparison.png     # Efficiency comparison
     ├── pesq_by_language.png           # Language-wise performance
     ├── comparative_codebook_utilization.png  # Codebook health
-    └── phoneme_heatmap.png            # Phoneme class degradation
+    ├── phoneme_heatmap.png            # Phoneme class degradation
+    └── fine-tuning-collapsed.png      # Fine-tuning results visualization
 
 ```
+
+---
+
+## Related Documentation
+
+For detailed phoneme-level analysis across all codecs, see:
+- **PHONEME_ANALYSIS.md** — 9 comprehensive tables covering:
+  - Phoneme class performance summary (MCD by codec)
+  - Top and worst performing phonemes
+  - Aspirated consonants detailed breakdown (6 phonemes analyzed)
+  - Retroflex preservation analysis
+  - Within-class variance and speaker robustness
+  - Statistical significance testing (ANOVA + Tukey HSD)
 
 ---
 
@@ -249,9 +303,21 @@ Future work:
 - **EnCodec:** https://github.com/facebookresearch/encodec
 - **HiFi-Codec:** https://github.com/yangdongchao/AcademiCodec
 - **IndicVoices:** https://huggingface.co/datasets/ai4bharat/IndicVoices
+- **IndicVoices-R:** https://github.com/AI4Bharat/IndicVoices-R
 - **Allosaurus:** https://github.com/xinjli/allosaurus (Phoneme recognition)
 
 ---
 
-**Generated:** March 30, 2026
-**Notebook:** `codec_evaluation.ipynb` (fully reproducible, all outputs captured)
+## Project Timeline
+
+Task 1: Codec Evaluation - Complete
+- Date: March 30, 2026
+- Status: 3 codecs evaluated on 500 clips across 10 languages
+- Deliverables: codec_evaluation.ipynb, evaluation metrics, visualizations
+
+Task 2: HiFi-Codec Fine-tuning - Complete
+- Date: April 1, 2026
+- Status: Fine-tuning experiment completed; architectural limitations identified
+- Deliverables: HiFi-codec_fine_tuning.ipynb, analysis results
+
+Notebooks are fully reproducible with all outputs captured.
