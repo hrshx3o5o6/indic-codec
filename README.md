@@ -13,6 +13,8 @@ This project evaluates three state-of-the-art neural audio codecs on multilingua
 - **Dravidian (5):** Tamil (ta), Telugu (te), Kannada (kn), Malayalam (ml), Odia (od)
 - **Sample size:** 50 clips per language
 
+Evaluation and training have been done on an RTX 4090, on the cloud (runpod)
+
 ---
 
 ## 2. Evaluation Setup
